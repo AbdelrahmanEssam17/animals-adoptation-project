@@ -5,7 +5,7 @@ import * as validators from './auth.validation.js'
 const router=Router()
 
 router.post('/signup',validation(validators.signup),registrationServices.signup)
-
+router.post('/login',validation(validators.login),registrationServices.login)
 
 
 
