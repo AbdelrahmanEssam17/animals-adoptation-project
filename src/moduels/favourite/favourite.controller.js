@@ -1,5 +1,8 @@
 import favouriteDoctor from "../DB/model/favourite.model";
 
+// add and remove favourite (toggle favourite)
+
+
 export const toggleFavourite = async (req,res) => {
     const doctorId = req.params.doctorId
 
