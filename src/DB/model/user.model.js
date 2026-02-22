@@ -37,4 +37,4 @@ default:gendertype.male
 
 },{timestamps:true})
 
-export const usermodel=mongoose.model.user||model("user",userschema)
+export const usermodel = mongoose.models.User || model("User", userschema);
