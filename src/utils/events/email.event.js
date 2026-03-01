@@ -7,7 +7,7 @@ export const emailEvent=new EventEmitter({})
 
 emailEvent.on("sendConfirmationEmail",async(data)=>{
     const{email}=data;
-    const otp=customAlphabet("0123456789",4)()
+    const otp=customAlphabet("0123456789",6)()
     const html=verificationemail({code:otp})
    await sendEmail({to:email,subject:"confirm email",html})
    console.log("email send")
