@@ -50,3 +50,59 @@ export const login = asynchandler(
     });
   }
 );
+export const getUsers = asynchandler(
+  async (req, res, next) => {
+
+    const users = await usermodel.find().select("-password");
+
+    return res.status(200).json({
+      message: "done",
+      results: users.length,
+      users
+    });
+
+  }
+);
+export const getUser = asynchandler(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const user = await usermodel.findById(id).select("-password");
+    if (!user) {
+      return next(new Error("user not found", { cause: 404 }));
+    }
+    return res.status(200).json({
+      message: "done",
+      user
+    });
+  }
+);
+export const updateUser = asynchandler(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const { username, email } = req.body;
+    const user = await usermodel.findByIdAndUpdate(
+      id,
+      { username, email },
+      { new: true}
+    ).select("-password");
+    if (!user) {
+      return next(new Error("user not found", { cause: 404 }));
+    }
+    return res.status(200).json({
+      message: "user updated",
+      user
+    });
+  }
+);
+export const deleteUser = asynchandler(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const user = await usermodel.findByIdAndDelete(id);
+    if (!user) {
+      return next(new Error("user not found", { cause: 404 }));
+    }
+    return res.status(200).json({
+      message: "user deleted"
+    });
+  }
+);
