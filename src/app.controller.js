@@ -17,6 +17,7 @@ import cors from 'cors'
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import adminRouter from "./moduels/admin/admin.routes.js"
 
 const bootstrap =(app,express)=>{
     app.use(express.json())
@@ -84,6 +85,7 @@ const bootstrap =(app,express)=>{
     app.use('/doctors', doctorsRouter)
     app.use('/appointment', appointmentRouter)
     app.use('/post', postRouter)
+    app.use('/admin', adminRouter)
     app.use('/wishlist', wishlistRouter)
 
 

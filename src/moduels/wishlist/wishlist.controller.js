@@ -67,18 +67,14 @@ import { wishlistModel } from "../../DB/model/withlist.model.js";
 export const addToWishlist = async (req, res, next) => {
   try {
     const { productId, guestId } = req.body;
-
     if (!guestId) return res.status(400).json({ message: "guestId is required" });
-
     let wishlist = await wishlistModel.findOne({ guestId });
-
     if (!wishlist) {
       wishlist = await wishlistModel.create({ guestId, products: [productId] });
     } else {
       wishlist.products.addToSet(productId);
       await wishlist.save();
     }
-    
     return res.status(200).json({
       message: "Product added to wishlist",
       wishlist: wishlist.products,
