@@ -1,4 +1,4 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { model, Schema ,Types} from "mongoose";
 
 const gendertype={male:'male',female:'female'}
 export const userschema=new Schema({
@@ -33,7 +33,9 @@ gender:{
 type:String,
 enum:Object.values(gendertype),
 default:gendertype.male
-}
+},
+
+//wishlist:[{type:Types.ObjectId,ref:'Product'}]
 
 },{timestamps:true})
 

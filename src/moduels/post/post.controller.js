@@ -1,9 +1,11 @@
-import Post from "../../DB/model/post.model.js";
+import  {postModel}  from "../../DB/model/post.model.js";
+import { reportModel } from "../../DB/model/report.model.js";
+import { asynchandler } from "../../utils/response/error.response.js";
 
-export const createPost = async (req, res) => {
+export const createPost = asynchandler(async (req, res, next) => {
   try {
     const {title, content, image} = req.body;
-    const post = await Post.create({
+    const post = await postModel.create({
       title,
       content,
       image,
@@ -11,101 +13,71 @@ export const createPost = async (req, res) => {
     });
     res.status(201).json(post);
   } catch (err) {
-    return new Error(err.message,cause,500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const getAllPosts = async (req, res) => {
+export const getAllPosts = asynchandler(async (req, res, next) => {
   try {
-    if (redisClient.isOpen) {
-      const cachedPosts = await redisClient.get("posts");
-      if (cachedPosts) {
-        console.log("Serving from cache");
-        return res.status(200).json({ message: "All posts (cached)", Posts: JSON.parse(cachedPosts) });
-      }
-    }
-    const posts = await Post.find()
+    const posts = await postModel.find()
       .populate("userID", "username")
       .sort({ timestamp: -1 });
-    if (redisClient.isOpen) {
-      await redisClient.setEx("posts", 3600, JSON.stringify(journals));
-    }
     res.status(200).json({ message: "Success", posts });
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const getPostByID = async (req, res) => {
+export const getPostByID = asynchandler(async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id)
+    const post = await postModel.findById(req.params.id)
     .populate("userID", "username")
     .populate("comments.userID", "username");
     if (!post)
       return new Error("Post not found", 404);
     res.status(200).json({ message: "Success", post });
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const getUserPosts = async (req, res) => {
+export const getUserPosts = asynchandler(async (req, res, next) => {
   try {
-    if (redisClient.isOpen) {
-      const cachedPosts = await redisClient.get("userPosts");
-      if (cachedPosts) {
-        console.log("Serving from cache");
-        return res.status(200).json({ message: "User posts (cached)", Posts: JSON.parse(cachedPosts) });
-      }
-    }
-    const posts = await Post.find({
+    const posts = await postModel.find({
       userID: req.params.userId
     });
     res.status(200).json({ message: "Success", posts });
-    if (redisClient.isOpen) {
-      await redisClient.setEx("userPosts", 3600, JSON.stringify(journals));
-    }
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const deletePost = async (req, res) => {
+export const deletePost = asynchandler(async (req, res, next) => {
   try {
-    await Post.findByIdAndDelete(req.params.id);
+    await postModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Post deleted" });
-    if (redisClient.isOpen) {
-      await redisClient.del("posts");
-    }
-    if (redisClient.isOpen) {
-      await redisClient.del("posts");
-      await redisClient.del("userPosts");
-    }
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const updatePost = async (req, res) => {
+export const updatePost = asynchandler(async (req, res, next) => {
   try {
-    const post = await Post.findByIdAndUpdate(
+    const { title, content } = req.body;
+    const post = await postModel.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { title, content },
       { new: true }
     );
     res.status(200).json({ message: "Success", post });
-    if (redisClient.isOpen) {
-      await redisClient.del("posts");
-      await redisClient.del("userPosts");
-    }
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const toggleLike = async (req, res) => {
+export const toggleLike = asynchandler(async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await postModel.findById(req.params.id);
     const userId = req.user.id;
     const index = post.likes.indexOf(userId);
     if (index === -1) {
@@ -117,13 +89,13 @@ export const toggleLike = async (req, res) => {
     await post.save();
     res.status(200).json({ message: "Success", post });
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const toggleSave = async (req, res) => {
+export const toggleSave = asynchandler(async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await postModel.findById(req.params.id);
     const userId = req.user.id;
     const index = post.saves.indexOf(userId);
     if (index === -1) {
@@ -135,13 +107,13 @@ export const toggleSave = async (req, res) => {
     await post.save();
     res.status(200).json({ message: "Success", post });
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const addComment = async (req, res) => {
+export const addComment = asynchandler(async (req, res, next) => {
   try {
-    const post = await Post.findById(req.body.postId);
+    const post = await postModel.findById(req.body.postId);
     post.comments.push({
       content: req.body.content,
       userID: req.user.id
@@ -149,20 +121,35 @@ export const addComment = async (req, res) => {
     await post.save();
     res.status(201).json({ message: "Success", post });
   } catch (err) {
-    throw new Error(err.message, 500);
+    return next(new Error(err.message, {cause: 500}));
   }
-};
+});
 
-export const reportPost = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    const userId = req.user.id;
-    if (!post.reports.includes(userId)) {
-      post.reports.push(userId);
-    }
-    await post.save();
-    res.status(201).json({ message: "Post reported" });
-  } catch (err) {
-    throw new Error(err.message, 500);
+export const reportPost = asynchandler(async (req, res, next) => {
+  const { reason, details } = req.body;
+  const userId = req.user.id;
+  const postId = req.params.id;
+  const post = await postModel.findById(postId);
+  if (!post) {
+    return next(new Error("Post not found", { cause: 404 }));
   }
-};
+  const existingReport = await reportModel.findOne({
+    reporter: userId,
+    targetId: postId,
+    onModel: "Posts"
+  });
+  if (existingReport) {
+    return next(new Error("You already reported this post", { cause: 400 }));
+  }
+  const report = await reportModel.create({
+    reason,
+    details,
+    reporter: userId,
+    onModel: "Posts",
+    targetId: postId
+  });
+  res.status(201).json({
+    message: "Post reported successfully",
+    report
+  });
+});

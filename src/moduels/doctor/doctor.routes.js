@@ -1,15 +1,15 @@
-import express from "express";
-import {Router} from "express";
-
-import { createDoctor, deleteDoctorById, getAllDoctors, getDoctorById, updateDoctorById } from "../doctor/doctor.controller.js";
+import { Router } from "express";
+import * as doctorController from "./doctor.controller.js";
+import validation from "../../middleware/validation.js";
+import * as doctorValidators from "./doctor.validation.js";
 
 const router = Router();
 
-router.post("/", createDoctor);
-router.get("/", getAllDoctors);
-router.get("/:id", getDoctorById);
-router.put("/:id", updateDoctorById);
-router.delete("/:id", deleteDoctorById);
 
+router.post("/create", validation(doctorValidators.createDoctor), doctorController.createDoctor);
+router.put("/update/:id", validation(doctorValidators.updateDoctor), doctorController.updateDoctorById);
+router.get("/all", doctorController.getAllDoctors);
+router.get("/:id", doctorController.getDoctorById);
+router.delete("/:id", doctorController.deleteDoctorById);
 
 export default router;

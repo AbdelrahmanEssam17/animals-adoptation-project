@@ -1,14 +1,11 @@
-
-import {Router} from 'express'
-import { createAppointment,getDoctorAppointment,getUserApointment,cancelAppointment } from "./appointment.controller.js";
-
+import Router from "express"
 const router=Router()
+import * as appointetmentservice from './appointment.controller.js'
 
 
-router.post ("/",createAppointment)
-router.get("/my-appointments",getUserApointment)
-router.get("/doctor/:doctorId",getDoctorAppointment)
-router.patch("/id/cancel",cancelAppointment)
+router.post('/bookappointment',appointetmentservice.addAppointment)
+ router.post ('/bookappointment/:id',appointetmentservice.bookAppointment)
+router.get('/getallappointment',appointetmentservice.getAllAppointments)
+ router.delete('/deleteappointment/:id',appointetmentservice.deleteAppointment)
 
-
-export default router;
+export default router

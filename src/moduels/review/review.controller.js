@@ -1,38 +1,40 @@
-import { reviewModel } from "../../DB/model/review.model.js";
-import { asynchandler } from "../../utils/response/error.response.js";
 
-export const addReview = asynchandler(async (req, res, next) => {
-    const { targetId, onModel, content, rating } = req.body;
-
-
-    const checkReview = await reviewModel.findOne({
-        user: req.user._id,
-        targetId,
-        onModel
-    });
-
-    if (checkReview) {
-        return next(new Error("You already reviewed this!", { cause: 400 }));
-    }
-
-    const review = await reviewModel.create({
-        content,
-        rating,
-        targetId,
-        onModel,
-        user: req.user._id
-    });
-
-    return res.status(201).json({ message: "done", review });
-});
-
-
-export const getReviews = asynchandler(async (req, res, next) => {
-    const { targetId } = req.params;
-    const reviews = await reviewModel.find({ targetId })
-        .populate("user", "username image")
-        .sort("-createdAt");
-
-    return res.status(200).json({ message: "done", reviews });
-});
-
+import { review } from "../../DB/model/review.model.js"
+export const addreview =async(req,res,next)=>{
+  try{
+    const addreview= new review(req.body)
+    await addreview.save()
+    res.status(201).json({message:"review added"})
+  }catch(error)
+  {
+    res.status(500).json({error:error.message})
+  }
+}
+export const getaallreview=async(req,res,next)=>{
+  let allreviews = await review.find()
+    res.status(201).json({message:"reviews gets successfly",allreviews})
+}
+export const getsinglereview=async(req,res,next)=>{
+    let singlereview = await review.findById(req.params.id)
+    if(!singlereview)
+        {
+            res.status(404).json({message:"review not found"})
+        }
+      res.status(201).json({message:"reviews get successfly",singlereview})
+  }
+  export const updatereview=async(req,res,next)=>{
+    let updatedreview=await review.findByIdAndUpdate(req.params.id,req.body,{new:true})
+    if(!updatedreview) 
+        {
+   return res.json({message:"review not found"}) 
+        }
+    res.json({message:"review updated successfly",updatedreview})
+  }
+export const deletereview=async(req,res,next)=>{
+    let deletereview=await review.findByIdAndDelete(req.params.id)
+    if(!deletereview) 
+        {
+  return res.json({message:"review not found"}) 
+        }
+    res.json({message:"review deleted successfly",deletereview})
+}     

@@ -8,7 +8,7 @@ export const createPetSchema = Joi.object({
     breed: Joi.string().optional(),
     age: Joi.number().min(0).max(20).required(),
     description: Joi.string().min(10).required(),
-    images: Joi.array().items(Joi.string()).min(1).required()
+//images: Joi.array().items(Joi.string()).min(1).required()
 }).required();
 
 export const updatePetSchema = Joi.object({

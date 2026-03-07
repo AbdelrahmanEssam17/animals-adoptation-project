@@ -10,11 +10,23 @@ export const addProduct = asynchandler(async (req, res, next) => {
 });
 
 
+// export const getAllProducts = asynchandler(async (req, res, next) => {
+//     const products = await shopModel.find().populate("seller", "username email");
+//     return res.status(200).json({ message: "done", products });
+// });
 export const getAllProducts = asynchandler(async (req, res, next) => {
-    const products = await shopModel.find().populate("seller", "username email");
-    return res.status(200).json({ message: "done", products });
-});
 
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const products = await shopModel
+    .find()
+    .populate("seller", "username email")
+    .skip(skip)
+    .limit(limit);
+
+  return res.status(200).json({ message: "done", products });
+});
 
 export const getProductById = asynchandler(async (req, res, next) => {
     const product = await shopModel.findById(req.params.id);

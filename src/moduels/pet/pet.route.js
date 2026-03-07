@@ -8,8 +8,7 @@ const router = Router();
 
 router.get('/', petServices.getAllPets);
 
-router.post('/',
-    auth,
+router.post('/', auth,
     validation(validators.createPetSchema),
     petServices.addPet
 );

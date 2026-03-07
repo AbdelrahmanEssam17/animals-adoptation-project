@@ -1,66 +1,82 @@
-
-import appointment from "../../DB/model/appointment.model.js"
-
-
-
-// create appointment
+// import appointmentModel from '../../../db/model/appointment.model.js'
+    import { asynchandler } from "../../utils/response/error.response.js";
+    import { successResponce } from "../../utils/response/success.response.js";
+   import Appointment from "../../DB/model/appointment.model.js";
 
 
-export const createAppointment = async (req, res) => {
-    const appointment = await appointment.create({
 
-        doctor: req.body.doctor,
-        date: req.body.date,
-        time: req.body.time
+export const addAppointment = asynchandler(async (req, res, next) => {
+  const { patient, doctor, appointmentDate, reason, notes } = req.body;
 
+  if (!patient || !doctor || !appointmentDate) {
+    return res.status(400).json({
+      message: "patient, doctor, and appointmentDate are required"
     });
+  }
 
-    res.status(201).json({ message: "Appointment booked successfully", appointment });
+  const existing = await Appointment.findOne({ doctor, appointmentDate });
+  if (existing) {
+    return res.status(400).json({
+      message: "Doctor is already booked at this time"
+    });
+  }
+  const appointment = new Appointment({
+    patient,
+    doctor,
+    appointmentDate,
+    reason,
+    notes
+  });
+  await appointment.save();
+  res.status(201).json({
+    message: "Appointment added successfully",
+    appointment
+  });
+});
 
-}
+export const bookAppointment = asynchandler(async (req, res, next) => {
+  const appointment = new Appointment({
+    appointmentDate: req.body.appointmentDate,
+    doctor: req.params.id,     
+    patient: req.body.patient, 
+    reason: req.body.reason
+  });
+
+  await appointment.save();
+
+  return successResponce({
+    res,
+    status: 201,
+    data: { appointment },
+    message: "Appointment booked successfully"
+  });
+});
+
+export const getAllAppointments = asynchandler(async (req, res, next) => {
+  const appointments = await Appointment.find()
+    .populate("doctor", "username specialization email") // matches schema field & ref
+    .populate("patient", "username email");             // matches schema field & ref
+
+  return successResponce({
+    res,
+    status: 200,
+    data: appointments,
+  });
+});
 
 
-// get all user appointment
 
+export const deleteAppointment = asynchandler(async (req, res, next) => {
+  const deleted = await Appointment.findByIdAndDelete(req.params.id);
 
-export const getUserApointment = async (req, res) => {
-    const appointment = await appointment.find({
-        user: req.user._id
-    })
-        .populate("doctor", "name")
+  if (!deleted) {
+    return next(new Error("Appointment not found", { cause: 404 }));
+  }
 
-    res.json(appointment)
-
-}
-
-
-// doctor appointment
-
-
-export const getDoctorAppointment = async (req, res) => {
-
-    const appointment = await appointment.find({
-        doctor: req.params.doctorId
-    })
-        .populate("user", "name")
-
-    res.json(appointment)
-};
-
-
-// cancel appointment 
-
-
-export const cancelAppointment = async (req, res) => {
-    const appointment = await (
-        appointment.findByIdAndUpdate(
-            req.params.id,
-
-            { status: "cancelled" },
-            { new: true }
-        ));
-
-    res.json({ message: "Appointment cancelled", appointment })
-
-};
-
+  return successResponce({
+    res,
+    status: 200,
+    data: { deleted },
+    message: "Appointment deleted successfully",
+  });
+});

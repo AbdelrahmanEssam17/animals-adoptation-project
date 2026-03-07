@@ -11,5 +11,4 @@ router.get("/users/:id", registrationServices.getUser);
 router.put("/users/:id", registrationServices.updateUser);
 router.delete("/users/:id", registrationServices.deleteUser);
 
-
 export default router

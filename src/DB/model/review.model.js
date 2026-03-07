@@ -1,31 +1,22 @@
-import mongoose from 'mongoose';
-
-const reviewSchema = new mongoose.Schema({
-    content: {
-        type: String,
-        required: [true, 'Write Review']
+  import mongoose,{Schema,model,Types} from "mongoose";
+  //import { ObjectId } from '../../../node_modules/bson/src/objectid';
+  const reviewschema=new Schema({
+  comment:String,
+  user:{
+      type:Types.ObjectId,
+      ref:"user",
+    //  required:true
+  },
+    rate:{
+      type:Number,
+      min:0,
+      max:5,
+     // required:true   
     },
-    rating: {
-        type: Number,
-        min: 1,
-        max: 5,
-        required: true
-    },
-    user: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    onModel: {
-        type: String,
-        required: true,
-        enum: ['Pet', 'Product']
-    },
-    targetId: {
-        type: mongoose.Schema.ObjectId,
-        required: true,
-        refPath: 'onModel'
+    product:{
+    type:Types.ObjectId,
+     ref:"product",
+     // required:true
     }
-}, { timestamps: true });
-
-export const reviewModel = mongoose.model('Review', reviewSchema);
+  })
+  export const review =mongoose.models.review ||model("review",reviewschema)

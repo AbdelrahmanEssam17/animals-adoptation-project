@@ -36,7 +36,7 @@ export const login = asynchandler(
     const accessToken = generateToken({
       payload: { id: user._id, email: user.email },
       signature: process.env.ACCESS_TOKEN_SIGNATURE,
-      expiresIn: "15m",
+      expiresIn: "7d",
     });
     const refreshToken = generateToken({
       payload: { id: user._id },

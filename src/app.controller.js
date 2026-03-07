@@ -7,11 +7,11 @@ import petRouter from '../src/moduels/pet/pet.route.js'
 import shopRouter from '../src/moduels/shop/shop.route.js'
 import orderRouter from '../src/moduels/order/order.route.js'
 import reportRouter from '../src/moduels/report/report.route.js'
-import reviewRouter from '../src/moduels/review/review.route.js'
+import reviewRouter from '../src/moduels/review/review.router.js'
 import doctorsRouter from '../src/moduels/doctor/doctor.routes.js'
 import appointmentRouter from '../src/moduels/appointment/appointment.routes.js'
 import postRouter from '../src/moduels/post/post.routes.js'
-
+import wishlistRouter from '../src/moduels/wishlist/wishlist.routes.js'
 
 import cors from 'cors'
 import session from "express-session";
@@ -77,13 +77,15 @@ const bootstrap =(app,express)=>{
 
     app.use('/auth',authroutes)
     app.use('/pets', petRouter);
-    app.use('/shop', shopRouter);
+    app.use('/product', shopRouter);
     app.use('/orders', orderRouter);
     app.use('/reports', reportRouter);
     app.use('/reviews', reviewRouter)
     app.use('/doctors', doctorsRouter)
     app.use('/appointment', appointmentRouter)
     app.use('/post', postRouter)
+    app.use('/wishlist', wishlistRouter)
+
 
 
 
